@@ -27,6 +27,9 @@ func main() {
 func evalCommand(cmd string) {
 	if strings.HasPrefix(cmd, "exit ") {
 		os.Exit(0)
+	} else if strings.HasPrefix(cmd, "echo ") {
+		output := strings.TrimPrefix(cmd, "echo ")
+		fmt.Println(output)
 	} else {
 		fmt.Printf("%s: command not found\n", cmd)
 	}
