@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -33,14 +34,15 @@ func main() {
 }
 
 func evalCommand(cmd []string) {
-	switch cmd[0] {
-	case "echo":
+	if cmd[0] == "echo" {
 		evalEcho(cmd)
-	case "exit":
+	} else if cmd[0] == "exit" {
 		evalExit()
-	case "type":
+	} else if cmd[0] == "type" {
 		evalType(cmd)
-	default:
+	} else if filepath, exists := isCommandFromPath(cmd[0]); exists {
+		runCommandFromPath(filepath, cmd[1])
+	} else {
 		fmt.Printf("%s: command not found\n", cmd[0])
 	}
 }
@@ -85,4 +87,17 @@ func isCommandFromPath(c string) (string, bool) {
 	}
 
 	return "", false
+}
+
+func runCommandFromPath(filepath string, args string) {
+	command := exec.Command(filepath, args)
+	var out strings.Builder
+	command.Stdout = &out
+	err := command.Run()
+
+	if err != nil {
+		panic(fmt.Sprintf("could not run command from path, error: %s", err))
+	}
+
+	fmt.Print(out.String())
 }
