@@ -8,9 +8,12 @@ import (
 )
 
 var commands []string
+var paths []string
 
 func main() {
 	commands = []string{"echo", "exit", "type"}
+	paths = strings.Split(os.Getenv("PATH"), ":")
+
 	br := bufio.NewReader(os.Stdin)
 
 	for {
@@ -51,19 +54,35 @@ func evalExit() {
 }
 
 func evalType(cmd []string) {
-	if isCommand(cmd) {
+	if isBuiltin(cmd[1]) {
 		fmt.Printf("%s is a shell builtin\n", cmd[1])
+	} else if filepath, exists := isCommandFromPath(cmd[1]); exists {
+		fmt.Printf("%s is %s\n", cmd[1], filepath)
 	} else {
 		fmt.Printf("%s: not found\n", cmd[1])
 	}
 }
 
-func isCommand(cmd []string) bool {
-	for _, c := range commands {
-		if cmd[1] == c {
+func isBuiltin(c string) bool {
+	for _, cm := range commands {
+		if c == cm {
 			return true
 		}
 	}
 
 	return false
+}
+
+func isCommandFromPath(c string) (string, bool) {
+	for _, path := range paths {
+		files, _ := os.ReadDir(path)
+
+		for _, file := range files {
+			if !file.IsDir() && file.Name() == c {
+				return fmt.Sprintf("%s/%s", path, file.Name()), true
+			}
+		}
+	}
+
+	return "", false
 }
