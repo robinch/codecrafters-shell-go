@@ -12,7 +12,7 @@ var commands []string
 var paths []string
 
 func main() {
-	commands = []string{"echo", "exit", "type"}
+	commands = []string{"echo", "exit", "type", "pwd"}
 	paths = strings.Split(os.Getenv("PATH"), ":")
 
 	br := bufio.NewReader(os.Stdin)
@@ -40,6 +40,8 @@ func evalCommand(cmd []string) {
 		evalExit()
 	} else if cmd[0] == "type" {
 		evalType(cmd)
+	} else if cmd[0] == "pwd" {
+		evalPwd()
 	} else if filepath, exists := isCommandFromPath(cmd[0]); exists {
 		runCommandFromPath(filepath, cmd[1])
 	} else {
@@ -53,6 +55,16 @@ func evalEcho(cmd []string) {
 
 func evalExit() {
 	os.Exit(0)
+}
+
+func evalPwd() {
+	path, err := os.Getwd()
+
+	if err != nil {
+		panic(fmt.Sprintf("Could not get working directory, err: %s", err))
+	}
+
+	fmt.Println(path)
 }
 
 func evalType(cmd []string) {
