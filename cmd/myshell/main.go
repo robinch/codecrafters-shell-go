@@ -10,10 +10,12 @@ import (
 
 var commands []string
 var paths []string
+var home string
 
 func main() {
 	commands = []string{"echo", "exit", "type", "pwd"}
 	paths = strings.Split(os.Getenv("PATH"), ":")
+	home = os.Getenv("HOME")
 
 	br := bufio.NewReader(os.Stdin)
 
@@ -70,10 +72,19 @@ func evalPwd() {
 }
 
 func evalCd(cmd []string) {
-	err := os.Chdir(cmd[1])
+
+	split_path := strings.Split(cmd[1], "/")
+
+	if split_path[0] == "~" {
+		split_path[0] = home
+	}
+
+	path := strings.Join(split_path, "/")
+
+	err := os.Chdir(path)
 
 	if err != nil {
-		fmt.Printf("cd: %s: No such file or directory\n", cmd[1])
+		fmt.Printf("cd: %s: No such file or directory\n", path)
 	}
 }
 
