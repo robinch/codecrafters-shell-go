@@ -42,6 +42,8 @@ func evalCommand(cmd []string) {
 		evalType(cmd)
 	} else if cmd[0] == "pwd" {
 		evalPwd()
+	} else if cmd[0] == "cd" {
+		evalCd(cmd)
 	} else if filepath, exists := isCommandFromPath(cmd[0]); exists {
 		runCommandFromPath(filepath, cmd[1])
 	} else {
@@ -65,6 +67,14 @@ func evalPwd() {
 	}
 
 	fmt.Println(path)
+}
+
+func evalCd(cmd []string) {
+	err := os.Chdir(cmd[1])
+
+	if err != nil {
+		fmt.Printf("cd: %s: No such file or directory\n", cmd[1])
+	}
 }
 
 func evalType(cmd []string) {
